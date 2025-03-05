@@ -1,15 +1,15 @@
 import { useFoodContext } from '@/context/FoodContext';
 import { Food } from '@/lib/types';
-import React from 'react';
+import React, { memo } from 'react';
 import ListHeader from './ListHeader';
-import { Button } from './ui/button';
+import { Button } from '../ui/button';
 
 export interface ListDisplayProps {
   title: string;
   items: Food[] | [];
 }
 
-export const ListDisplay = ({ title, items }: ListDisplayProps) => {
+const ListDisplay = ({ title, items }: ListDisplayProps) => {
   const { onMoveBackToList } = useFoodContext();
 
   return (
@@ -26,3 +26,5 @@ export const ListDisplay = ({ title, items }: ListDisplayProps) => {
     </ListHeader>
   );
 };
+
+export default memo(ListDisplay);

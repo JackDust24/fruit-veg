@@ -7,6 +7,8 @@ import React, {
   ReactNode,
   useEffect,
   useRef,
+  useMemo,
+  useCallback,
 } from 'react';
 import { data } from '@/data/data';
 import { moveItemToColumn, moveItemBackToList } from '@/lib/foodUtils';
@@ -29,49 +31,60 @@ export const FoodProvider = ({ children }: { children: ReactNode }) => {
   const fruitTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
   const vegetableTimers = useRef<{ [key: string]: NodeJS.Timeout }>({});
 
+  // Memoize fruits and vegetables arrays
+  const memoizedFruits = useMemo(() => fruits, [fruits]);
+  const memoizedVegetables = useMemo(() => vegetables, [vegetables]);
+
   useEffect(() => {
     if (foodItems === null) {
       setFoodItems(data);
     }
   }, [foodItems]);
 
-  const handleMoveToColumn = (item: Food) => {
-    if (item.type === 'Fruit') {
-      moveItemToColumn(item, setFruits, fruitTimers, handleMoveBackToList);
-    } else if (item.type === 'Vegetable') {
-      moveItemToColumn(
-        item,
-        setVegetables,
-        vegetableTimers,
-        handleMoveBackToList
-      );
-    }
-    setFoodItems(
-      (prev) => prev?.filter((_item) => _item.name !== item.name) || []
-    );
-  };
+  const handleMoveBackToList = useCallback(
+    (item: Food) => {
+      setFoodItems((prev) => (prev ? [...prev, item] : []));
+      if (item.type === 'Fruit') {
+        moveItemBackToList(item, setFruits, fruitTimers);
+      } else if (item.type === 'Vegetable') {
+        moveItemBackToList(item, setVegetables, vegetableTimers);
+      }
+    },
+    [setFruits, setVegetables]
+  );
 
-  const handleMoveBackToList = (item: Food) => {
-    setFoodItems((prev) => (prev ? [...prev, item] : []));
-    if (item.type === 'Fruit') {
-      moveItemBackToList(item, setFruits, fruitTimers);
-    } else if (item.type === 'Vegetable') {
-      moveItemBackToList(item, setVegetables, vegetableTimers);
-    }
-  };
+  const handleMoveToColumn = useCallback(
+    (item: Food) => {
+      if (item.type === 'Fruit') {
+        moveItemToColumn(item, setFruits, fruitTimers, handleMoveBackToList);
+      } else if (item.type === 'Vegetable') {
+        moveItemToColumn(
+          item,
+          setVegetables,
+          vegetableTimers,
+          handleMoveBackToList
+        );
+      }
+      setFoodItems(
+        (prev) => prev?.filter((_item) => _item.name !== item.name) || []
+      );
+    },
+    [setFruits, setVegetables, handleMoveBackToList]
+  );
+
+  const contextValue = useMemo(
+    () => ({
+      foodItems,
+      fruits: memoizedFruits,
+      vegetables: memoizedVegetables,
+      onMoveToColumn: handleMoveToColumn,
+      onMoveBackToList: handleMoveBackToList,
+    }),
+    [foodItems, handleMoveToColumn, memoizedFruits, memoizedVegetables]
+  );
 
   return (
-    <FoodContext.Provider
-      value={{
-        foodItems,
-        fruits,
-        vegetables,
-        onMoveToColumn: handleMoveToColumn,
-        onMoveBackToList: handleMoveBackToList,
-      }}
-    >
-      {children}
-    </FoodContext.Provider>
+    <FoodContext.Provider value={contextValue}>{children}</FoodContext.Provider>
   );
 };
 

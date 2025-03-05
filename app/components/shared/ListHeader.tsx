@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react';
+import React, { memo, ReactNode } from 'react';
 
 export type ListHeaderProps = {
   title: string;
@@ -14,4 +14,4 @@ const ListHeader = ({ title, children }: ListHeaderProps) => {
   );
 };
 
-export default ListHeader;
+export default memo(ListHeader);
