@@ -1,6 +1,6 @@
-import { FoodData } from '@/lib/types';
+import { Food } from '@/lib/types';
 
-export const data: FoodData[] = [
+export const data: Food[] = [
   {
     type: 'Fruit',
     name: 'Apple',
