@@ -5,6 +5,9 @@ This is a [Next.js] app that enables you to do the following:
 * After 5 seconds the item will appear back in the main list at the end of the list.
 * If you do not wish to wait 5 seconds, please press on the item in the collumn.
 
+## Demo version
+Access here - https://fruit-veg-iota.vercel.app/
+
 ## Getting Started
 
 ```bash
